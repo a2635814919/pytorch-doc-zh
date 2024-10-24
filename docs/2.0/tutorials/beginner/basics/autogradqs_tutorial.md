@@ -19,7 +19,7 @@ x = torch.ones(5)  # input tensor
 y = torch.zeros(3)  # expected output
 w = torch.randn(5, 3, requires_grad=True)
 b = torch.randn(3, requires_grad=True)
-z = torch.matmul(x, w)+b
+z = torch.matmul(x, w) + b
 loss = torch.nn.functional.binary_cross_entropy_with_logits(z, y)
 ```
 
@@ -34,7 +34,7 @@ loss = torch.nn.functional.binary_cross_entropy_with_logits(z, y)
 > 注意:
 > 你可以在创建tensor的时候就设置 `requires_grad` 的值、或者在创建之后用 `x.requires_grad_(True)` 方法来设置。
 
-我们对tensor应用来创建计算图的函数事实上是一个 `Function` 类的对象。这个对象知道如何*前向*地计算函数，以及如何在*向后传播的步骤中*计算导数。反向传播函数的一个引用保存在tensor的 `grad_fn` 的属性中。你可以在[文档](https://pytorch.org/docs/stable/autograd.html#function)中找到更多关于 `Function` 的信息。
+以上计算图对应的 `loss` 和 `z` 的函数，事实上是一个 `Function` 类的对象。这个对象知道如何*前向*地计算函数，以及如何在*向后传播的步骤中*计算导数。反向传播函数的一个引用保存在tensor的 `grad_fn` 的属性中。你可以在[文档](https://pytorch.org/docs/stable/autograd.html#function)中找到更多关于 `Function` 的信息。
 
 ```py
 print(f"Gradient function for z = {z.grad_fn}")
@@ -50,7 +50,7 @@ Gradient function for loss = <BinaryCrossEntropyWithLogitsBackward0 object at 0x
 
 ## 计算梯度
 
-为了优化神经网络中的参数，我们需要对参数计算损失函数的导数，也就是，我们需要在给定 `x` 和 `y` 下的 $\frac{\partial loss}{\partial w}$ 和 $\frac{\partial loss}{\partial b}$ 。要计算这些导数，我们调用`loss.backward()`，然后从 `w.grad` 和 `b.grad` 中获取值。
+为了优化神经网络中的参数，我们需要对参数计算损失函数的导数，也就是，我们需要计算在给定 `x` 和 `y` 下的 $\frac{\partial loss}{\partial w}$ 和 $\frac{\partial loss}{\partial b}$ 。要计算这些导数，我们调用`loss.backward()`，然后从 `w.grad` 和 `b.grad` 中获取值。
 
 ```py
 loss.backward()
@@ -79,11 +79,11 @@ tensor([0.3313, 0.0626, 0.2530])
 默认情况下，所有设置 `requires_grad=True` 的tensor会追踪它的计算历史并支持梯度计算。但是也有我们并不需要这么做的场景，比如，当我们已经训练了模型且只想对一些输入数据应用的时候，比如我们只想做沿着网络的*前向*计算。我们可以通过用 `torch.no_grad` 包裹我们的计算代码块来停止追踪计算。
 
 ```py
-z = torch.matmul(x, w)+b
+z = torch.matmul(x, w) + b
 print(z.requires_grad)
 
 with torch.no_grad():
-    z = torch.matmul(x, w)+b
+    z = torch.matmul(x, w) + b
     print(z.requires_grad)
 ```
 
@@ -97,7 +97,7 @@ False
 另一种取得同样效果的方法是在tensor上使用 `detach()` 方法。
 
 ```py
-z = torch.matmul(x, w)+b
+z = torch.matmul(x, w) + b
 z_det = z.detach()
 print(z_det.requires_grad)
 ```
@@ -141,9 +141,9 @@ False
 
 $$
   \begin{matrix}
-  \frac{\partial y_1}{\partial x1} & ... & \frac{\partial y_1}{\partial x_n} \\
-  ... & ... & .. \\
-  \frac{\partial y_m}{\partial x1} & ... & \frac{\partial y_m}{\partial x_n}
+  \frac{\partial y_1}{\partial x1} & \cdots & \frac{\partial y_1}{\partial x_n} \\
+  \vdots & \ddots & \vdots \\
+  \frac{\partial y_m}{\partial x1} & \cdots & \frac{\partial y_m}{\partial x_n}
   \end{matrix}\tag{1}
 $$
 
